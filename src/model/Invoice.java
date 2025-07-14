@@ -1,49 +1,66 @@
+package model;
+
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class Invoice {
     private String invoiceId;
     private Customer customer;
-    private Product[] products;
-    private int[] quantities;
-    private double totalAmount;
+    private ArrayList<Product> products;
+    private ArrayList<Integer> quantities;
+    private double totalAmount = 0.0;
 
-    public Invoice(Customer customer, Product[] products, int[] quantities) {
-        if (products.length != quantities.length) {
-            throw new IllegalArgumentException("Missmatched Items & quantities");
-
-        }
+    public Invoice(Customer customer) {
         this.invoiceId = UUID.randomUUID().toString();
         this.customer = customer;
-        this.products = products;
-        this.quantities = quantities;
-        calculteTotalAmount();
-
+        this.products = new ArrayList<>();
+        this.quantities = new ArrayList<>();
+        this.totalAmount = 0.0;
     }
 
-    private void calculteTotalAmount() {
-        double sum = 0.0;
-        for (int i = 0; i < products.length; i++) {
-            sum += products[i].getPrice() * quantities[i];
+    public void addProduct(Product product, int quantity) {
+        if (product == null || quantity <= 0)
+            return;
+        this.products.add(product);
+        quantities.add(quantity);
+        calculateTotalAmount();
+    }
 
+    private void calculateTotalAmount() {
+        double sum = 0.0;
+        for (int i = 0; i < products.size(); i++) {
+            Product p = products.get(i);
+            int qty = quantities.get(i);
+            sum += p.getPrice() * qty;
         }
+
         this.totalAmount = sum;
     }
 
     @Override
     public String toString() {
+        Date currentDate = new Date();
         StringBuilder sb = new StringBuilder();
-        sb.append("InvoiceID : [").append(invoiceId).append("]\n").append("Customer :")
-                .append(customer.getCustomerFullName()).append("\n")
-                .append("Items").append("\n");
-        for (int i = 0; i < products.length; i++) {
-            sb.append("---------------------------------------").append("\n")
-                    .append(products[i].getName()).append("x").append(quantities[i]).append("=")
-                    .append(products[i].getPrice() * quantities[i]).append("\n")
-                    .append("---------------------------------------");
-        }
-        sb.append("Ttotal amount :").append(totalAmount).append("$");
-        return sb.toString();
+        sb.append("InvoiceID: [").append(invoiceId).append("]\n")
+                .append("Customer: ").append(customer.getCustomerFullName()).append("\n")
+                .append("Items:\n");
+        sb.append("---------------------------------------\n");
+        for (int i = 0; i < products.size(); i++) {
+            // Product p = products.get(i);
+            // int qty = quantities.get(i);
 
+            sb.append(products.get(i).getName()).append("[").append(products.get(i).getPrice())
+                    .append(" per unit ]").append(" X ")
+                    .append(quantities.get(i)).append(" = ")
+                    .append(products.get(i).getPrice() * quantities.get(i)).append("\n");
+        }
+
+        sb.append("---------------------------------------\n")
+                .append("Total amount: ").append(totalAmount).append(" $\n").append(" paid by date : ")
+                .append(currentDate);
+
+        return sb.toString();
     }
 
 }

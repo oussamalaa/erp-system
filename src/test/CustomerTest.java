@@ -1,3 +1,7 @@
+package test;
+
+import model.Customer;
+
 public class CustomerTest {
     public static void main(String[] args) {
         Customer c1 = new Customer("Piter Check", "piter@mail.com", "514-123-1111");
