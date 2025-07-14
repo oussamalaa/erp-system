@@ -1,6 +1,7 @@
 package model;
 
 import java.util.UUID;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -9,6 +10,8 @@ public class Invoice {
     private Customer customer;
     private ArrayList<Product> products;
     private ArrayList<Integer> quantities;
+    private LocalDate invoiceDate;
+    private LocalDate dueDate; // optional
     private double totalAmount = 0.0;
 
     public Invoice(Customer customer) {
@@ -17,6 +20,12 @@ public class Invoice {
         this.products = new ArrayList<>();
         this.quantities = new ArrayList<>();
         this.totalAmount = 0.0;
+        this.invoiceDate = LocalDate.now();
+
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
     }
 
     public void addProduct(Product product, int quantity) {
@@ -58,7 +67,7 @@ public class Invoice {
 
         sb.append("---------------------------------------\n")
                 .append("Total amount: ").append(totalAmount).append(" $\n").append(" paid by date : ")
-                .append(currentDate);
+                .append(invoiceDate);
 
         return sb.toString();
     }
