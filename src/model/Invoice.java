@@ -26,13 +26,17 @@ public class Invoice {
 
     }
 
-    public void setDueDate(LocalDate dueDate) {
-        this.dueDate = dueDate;
+    public void setDueDate(LocalDate invoiceDate) {
+        this.invoiceDate = invoiceDate;
+    }
+
+    private double getLineTotal(int index) {
+        return products.get(index).getPrice() * quantities.get(index);
     }
 
     public void addProduct(Product product, int quantity) {
         if (product == null || quantity <= 0)
-            return;
+            throw new IllegalArgumentException("No Product to add ");
         this.products.add(product);
         quantities.add(quantity);
         calculateTotalAmount();
@@ -43,7 +47,7 @@ public class Invoice {
         for (int i = 0; i < products.size(); i++) {
             Product p = products.get(i);
             int qty = quantities.get(i);
-            sum += p.getPrice() * qty;
+            sum = getLineTotal(i);
         }
 
         this.totalAmount = sum + (sum * taxRate);
@@ -62,8 +66,8 @@ public class Invoice {
             sb.append(products.get(i).getName()).append("[").append(products.get(i).getPrice())
                     .append(" per unit ]").append(" X ")
                     .append(quantities.get(i)).append(" = ")
-                    .append(products.get(i).getPrice() * quantities.get(i)).append(" + tax 15% [")
-                    .append(products.get(i).getPrice() * quantities.get(i) * taxRate).append(" $ ]")
+                    .append(getLineTotal(i)).append(" + tax 15% [")
+                    .append(getLineTotal(i) * taxRate).append(" $ ]")
                     .append("\n");
         }
 
