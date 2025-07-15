@@ -3,79 +3,90 @@ package model;
 import java.util.UUID;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class Invoice {
     private String invoiceId;
     private Customer customer;
-    private ArrayList<Product> products;
-    private ArrayList<Integer> quantities;
+    private ArrayList<InvoiceItem> items;
     private LocalDate invoiceDate;
-    private LocalDate dueDate; // optional for later use dueedate payment
+    private LocalDate dueDate; // optional for future payment deadline feature
     private double taxRate;
     private double totalAmount;
 
     public Invoice(Customer customer) {
         this.invoiceId = UUID.randomUUID().toString();
         this.customer = customer;
-        this.products = new ArrayList<>();
-        this.quantities = new ArrayList<>();
+        this.items = new ArrayList<>();
         this.totalAmount = 0.0;
         this.taxRate = 0.15;
         this.invoiceDate = LocalDate.now();
-
-    }
-
-    public void setDueDate(LocalDate invoiceDate) {
-        this.invoiceDate = invoiceDate;
-    }
-
-    private double getLineTotal(int index) {
-        return products.get(index).getPrice() * quantities.get(index);
     }
 
     public void addProduct(Product product, int quantity) {
-        if (product == null || quantity <= 0)
-            throw new IllegalArgumentException("No Product to add ");
-        this.products.add(product);
-        quantities.add(quantity);
-        calculateTotalAmount();
+        if (product == null || quantity <= 0) {
+            throw new IllegalArgumentException("Invalid product or quantity.");
+        }
+        this.items.add(new InvoiceItem(product, quantity));
+        calculateTotalAmount(); // ✅ Always update total
     }
 
     private void calculateTotalAmount() {
         double sum = 0.0;
-        for (int i = 0; i < products.size(); i++) {
-            Product p = products.get(i);
-            int qty = quantities.get(i);
-            sum = getLineTotal(i);
+        for (InvoiceItem item : items) {
+            sum += item.getTotal();
         }
-
         this.totalAmount = sum + (sum * taxRate);
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public String getInvoiceId() {
+        return invoiceId;
+    }
+
+    public LocalDate getInvoiceDate() {
+        return invoiceDate;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public ArrayList<InvoiceItem> getItems() {
+        return items;
     }
 
     @Override
     public String toString() {
-        Date currentDate = new Date();
         StringBuilder sb = new StringBuilder();
         sb.append("InvoiceID: [").append(invoiceId).append("]\n")
                 .append("Customer: ").append(customer.getCustomerFullName()).append("\n")
-                .append("Items:\n");
-        sb.append("---------------------------------------\n");
-        for (int i = 0; i < products.size(); i++) {
+                .append("Items:\n")
+                .append("---------------------------------------\n");
 
-            sb.append(products.get(i).getName()).append("[").append(products.get(i).getPrice())
-                    .append(" per unit ]").append(" X ")
-                    .append(quantities.get(i)).append(" = ")
-                    .append(getLineTotal(i)).append(" + tax 15% [")
-                    .append(getLineTotal(i) * taxRate).append(" $ ]")
-                    .append("\n");
+        for (InvoiceItem item : items) {
+            Product p = item.getProduct();
+            int qty = item.getQuantity();
+            double lineTotal = item.getTotal();
+            double tax = lineTotal * taxRate;
+
+            sb.append(p.getName()).append(" [")
+                    .append(p.getPrice()).append(" per unit] x ")
+                    .append(qty).append(" = ")
+                    .append(lineTotal).append(" + tax 15% [")
+                    .append(tax).append(" $]\n");
         }
 
         sb.append("---------------------------------------\n")
-                .append("Total amount: ").append(totalAmount).append(" $\n").append("paid by date : ")
-                .append(invoiceDate);
+                .append("Total amount: ").append(totalAmount).append(" $\n")
+                .append("Issued on: ").append(invoiceDate);
 
         return sb.toString();
     }
-
 }
