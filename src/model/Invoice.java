@@ -27,7 +27,7 @@ public class Invoice {
             throw new IllegalArgumentException("Invalid product or quantity.");
         }
         this.items.add(new InvoiceItem(product, quantity));
-        calculateTotalAmount(); // ✅ Always update total
+        calculateTotalAmount(); // "Always update total for product "
     }
 
     private void calculateTotalAmount() {
