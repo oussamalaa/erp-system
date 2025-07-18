@@ -1,8 +1,12 @@
+/**
+ * 
+ */
 package model;
 
 import java.util.UUID;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import model.Payment;
 
 public class Invoice {
     private String invoiceId;
@@ -12,6 +16,8 @@ public class Invoice {
     private LocalDate dueDate; // optional for future payment deadline feature
     private double taxRate;
     private double totalAmount;
+    private boolean isPaid;
+    private ArrayList<Payment> payments;
 
     public Invoice(Customer customer) {
         this.invoiceId = UUID.randomUUID().toString();
